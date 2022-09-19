@@ -26,7 +26,9 @@ export type TQRCode = {
     QRStyle?: QrStyle,
     Size?: number
     QRQuiteZone?: number
-    Logo?: QRLogo
+    Logo?: QRLogo,
+    QRForeGroundColor?: string,
+    QRBackGroundColor?: string
 }
 
 /**
@@ -41,7 +43,9 @@ export const QRCode: React.FC<TQRCode> = ({
     QRStyle = QrStyle.Square, // QR Style
     Size = 150, // Size of QR
     QRQuiteZone = 10, // Padding Outside the QR
-    Logo // Logo To Add in-front of QR
+    Logo, // Logo To Add in-front of QR
+    QRBackGroundColor,
+    QRForeGroundColor
 }) => {
     return Logo ?
         <QrCode
@@ -50,6 +54,8 @@ export const QRCode: React.FC<TQRCode> = ({
             qrStyle={QRStyle}
             size={Size}
             quietZone={QRQuiteZone}
+            fgColor={QRForeGroundColor}
+            bgColor={QRBackGroundColor}
             logoImage={Logo.Source}
             logoHeight={Logo.Height}
             logoWidth={Logo.Width}
@@ -61,5 +67,7 @@ export const QRCode: React.FC<TQRCode> = ({
             qrStyle={QRStyle}
             size={Size}
             quietZone={QRQuiteZone}
+            fgColor={QRForeGroundColor}
+            bgColor={QRBackGroundColor}
         />
 }

@@ -1,7 +1,9 @@
 import { QRCard } from "./ui";
 const App = () => {
   return (
-    <QRCard />
+    <div className="mt-10">
+      <QRCard />
+    </div>
   );
 }
 
