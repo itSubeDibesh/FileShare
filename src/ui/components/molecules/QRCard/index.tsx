@@ -20,21 +20,24 @@ export const QRCard = () => {
     }, [currentDevice, log, save])
 
     return (
-        <div className="flex justify-center">
-            <div className="grid">
-                <div className="justify-self-center border-4 w-[180px]">
-                    <QRCode
-                        QRText={QRText}
-                        ErrorCorrection={ECLevel.High}
-                        QRStyle={QrStyle.Square}
-                        QRForeGroundColor="#222222"
-                        Logo={{
-                            Source: "/favicon.ico",
-                            HideBackground: true
-                        }} />
-                </div>
-                <div className="mt-2">
-                    <p className="text-xs text-center">{QRText}</p>
+        <div className="text-center">
+            <h2 className="mb-2 text-lg font-bold">Scan to Connect</h2>
+            <div className="flex justify-center">
+                <div className="grid">
+                    <div className="justify-self-center border-4 w-[180px]">
+                        <QRCode
+                            QRText={QRText}
+                            ErrorCorrection={ECLevel.High}
+                            QRStyle={QrStyle.Square}
+                            QRForeGroundColor="#222222"
+                            Logo={{
+                                Source: "/favicon.ico",
+                                HideBackground: true
+                            }} />
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-xs text-center">{QRText}</p>
+                    </div>
                 </div>
             </div>
         </div>
