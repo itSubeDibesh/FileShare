@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { getMessages, TGetMessage } from "./services";
+import { getMessages, TReceiveMessageResponse } from "./services";
 import { QRCard } from "./ui";
 import { Store } from "./utils";
 import { Icon } from "@iconify/react"
 
 const App = () => {
   const UserId = Store.get("DEVICE_UUID") || "";
-  const [message, setMessage] = useState<TGetMessage[]>([]);
+  const [message, setMessage] = useState<TReceiveMessageResponse[]>([]);
 
   const setupFn = async () => {
     const data = await getMessages(UserId);
@@ -16,6 +16,7 @@ const App = () => {
 
   useEffect(() => {
     setupFn()
+    setInterval(setupFn, 5e3)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
