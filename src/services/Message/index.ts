@@ -13,6 +13,18 @@ type TMessageResponse = {
     shared_to: string
 }
 
+export type TMessageResponseChanger = {
+    id: number,
+    attribute: string,
+    url?: string,
+    text: string,
+    status: string,
+    created_at: string,
+    updated_at: string,
+    shared_by_id: string,
+    shared_to_id: string
+}
+
 export type TSendMessageBody = {
     attribute: string,
     url?: string,
@@ -28,11 +40,6 @@ export type TMessageUUIDs = {
 
 export type TSendMessageResponse = TMessageResponse
 export type TReceiveMessageResponse = TMessageResponse;
-
-export type TMessagesArray = {
-    sent_data: TMessageResponse[]
-    received_data: TMessageResponse[]
-}
 
 export const getMessages = async (uuid: string): Promise<TReceiveMessageResponse[]> => {
     return (await axios
@@ -53,7 +60,7 @@ export const sendMessage = async (message: TSendMessageBody): Promise<TSendMessa
         )).data;
 }
 
-export const allMessages = async (uuids: TMessageUUIDs): Promise<TMessagesArray> => {
+export const allMessages = async (uuids: TMessageUUIDs): Promise<TMessageResponseChanger[]> => {
     const { shared_by, shared_to } = uuids;
     return (await axios.post(
         `${BASE_URL}/message/`,

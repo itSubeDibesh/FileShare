@@ -1,22 +1,23 @@
 import { useEffect, useState } from "react";
-import { getMessages, TReceiveMessageResponse } from "./services";
+import { allMessages, TMessageResponseChanger } from "./services";
 import { QRCard } from "./ui";
 import { Store } from "./utils";
 import { Icon } from "@iconify/react"
 
 const App = () => {
-  const UserId = Store.get("DEVICE_UUID") || "";
-  const [message, setMessage] = useState<TReceiveMessageResponse[]>([]);
+  const shared_by = Store.get("DEVICE_UUID") || "";
+  const shared_to = "6844a088-b6b3-4f28-bb74-c0fc56c95a9f"
+  const [message, setMessage] = useState<TMessageResponseChanger[]>([]);
 
   const setupFn = async () => {
-    const data = await getMessages(UserId);
+    const data = await allMessages({ shared_by, shared_to });
     console.log(data)
     setMessage(data);
   }
 
   useEffect(() => {
     setupFn()
-    setInterval(setupFn, 5e3)
+    setInterval(setupFn, 4e3)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -26,11 +27,11 @@ const App = () => {
         <div className="mt-10">
           <QRCard />
         </div>
-        <div className="h-full" >
+        <div className="mt-20" >
           <div className="mr-10 ml-10" >
             <ul className="list-none">
               {message.map((item) => {
-                return item.shared_by === UserId ?
+                return item.shared_by_id === shared_by ?
                   <li className="text-right flex justify-end" key={item.id}>
                     {item.text}
                     <Icon icon="carbon:user-avatar-filled" className="ml-2 mr-2" color="lightblue" width={24} />
