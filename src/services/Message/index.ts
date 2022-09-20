@@ -1,7 +1,7 @@
 import axios from "axios"
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
-type TMessageResponse = {
+export type TMessageResponse = {
     id: number,
     attribute: string,
     url?: string,
@@ -11,18 +11,6 @@ type TMessageResponse = {
     updated_at: string,
     shared_by: string,
     shared_to: string
-}
-
-export type TMessageResponseChanger = {
-    id: number,
-    attribute: string,
-    url?: string,
-    text: string,
-    status: string,
-    created_at: string,
-    updated_at: string,
-    shared_by_id: string,
-    shared_to_id: string
 }
 
 export type TSendMessageBody = {
@@ -60,7 +48,7 @@ export const sendMessage = async (message: TSendMessageBody): Promise<TSendMessa
         )).data;
 }
 
-export const allMessages = async (uuids: TMessageUUIDs): Promise<TMessageResponseChanger[]> => {
+export const allMessages = async (uuids: TMessageUUIDs): Promise<TMessageResponse[]> => {
     const { shared_by, shared_to } = uuids;
     return (await axios.post(
         `${BASE_URL}/message/`,
