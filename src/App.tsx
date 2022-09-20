@@ -42,7 +42,7 @@ const App = () => {
         </div>
         <div className="mt-20" >
           <div className="mr-10 ml-10" >
-            <ul className="list-none">
+            <ul className="list-none mb-40">
               {message.map((item) => {
                 return item.shared_by === shared_by ?
                   <li className="text-right flex justify-end" key={item.id}>
