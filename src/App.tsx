@@ -14,7 +14,7 @@ const App = () => {
       name: localStorage.getItem("USER_NAME")
     })
 
-  const [messageResponse, setMessageResponse] = useState<TMessageResponse[]>();
+  const [messageResponse, setMessageResponse] = useState<TMessageResponse[]>([]);
 
   // Handlers
   const
@@ -43,14 +43,18 @@ const App = () => {
       }
     },
     setupSocket = async () => {
-      const socket = await setupCentrifuge();
-      socket.on('connect', (ctx) => log(`Centrifuge Connecting, Context:`, ctx))
+      const socket = await setupCentrifuge(`${userDetails.uuid}`);
+      socket.on('connect', (ctx) => log(`Centrifuge Connected, Context:`, ctx))
       socket.on('disconnect', (ctx) => log(`Centrifuge Disconnected, Context:`, ctx))
       setCentrifuge(socket);
     }
 
-  const handleSocketAction = (context: any) => {
-    log("handleSocketAction:", context)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleSocketAction = (data: TMessageResponse) => {
+    log("handleSocketAction:", data)
+    setMessageResponse((prev) => {
+      return [...prev, data]
+    })
   }
 
   // ON Load
@@ -60,17 +64,19 @@ const App = () => {
   // Subscribing to Socked Events
   useEffect(() => {
     let centrifugeSub: Centrifuge.Subscription | undefined;
+    log('Centrifuge subscription, UUID:', userDetails.uuid)
     if (userDetails.uuid)
       centrifugeSub = centrifuge?.subscribe(
         `${userDetails.uuid}`, (ctx) => {
           log('Centrifuge subscription, Context', ctx)
-          handleSocketAction(ctx)
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          handleSocketAction(ctx.data.data)
         })
     return () => {
       log('Centrifuge removed subscription')
       centrifugeSub?.unsubscribe()
     }
-  }, [centrifuge, userDetails.uuid, log, handleSocketAction])
+  }, [centrifuge, userDetails.uuid, log])
 
   return (
     <div className="relative">
@@ -81,7 +87,7 @@ const App = () => {
           </div>
         }
         {userDetails.uuid ?
-          <MessageList allMessages={messageResponse} shared_by={userDetails.uuid} />
+          <MessageList allMessages={messageResponse} shared_to={userDetails.uuid} shared_to_name={userDetails.name} />
           : <SetUpForm userName={inputName} setUserName={setInputName} handelSubmit={handelSubmit} />
         }
       </div>

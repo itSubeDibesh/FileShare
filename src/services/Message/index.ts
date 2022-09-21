@@ -18,14 +18,11 @@ type TSendMessageResponse = {
     success: boolean,
     data: TMessageResponse
 }
-type TReceiveMessageResponse = {
-    success: boolean,
-    data: TMessageResponse[]
-};
 
 export type TMessageResponse = {
     id: number,
     attribute: string,
+    shared_by_name: string
     url?: string,
     text: string,
     status: string,
@@ -42,19 +39,12 @@ export type TUser = {
 
 export type TAllMessagesResponse = {
     success: boolean,
-    data: {
-        success: boolean,
-        messages: TMessageResponse[],
-        users: {
-            shared_by: TUser,
-            shared_to: TUser
-        }
-    }
+    data: TMessageResponse[]
 }
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
-export const getMessages = async (uuid: string): Promise<TResponse | TReceiveMessageResponse> => {
+export const getMessages = async (uuid: string): Promise<TResponse | TAllMessagesResponse> => {
     try {
         const { status, data } = await axios.post(
             `${BASE_URL}/receive/`,
@@ -62,13 +52,16 @@ export const getMessages = async (uuid: string): Promise<TResponse | TReceiveMes
             { headers: { 'Content-Type': 'application/json' } }
         )
         if (status === 200)
-            return { success: true, data: data }
+            return { success: data.success, data: data.data }
         else throw new Error("Problem creating user.")
     } catch (error) {
         return errorHandler(error)
     }
 }
 
+/**
+ * @deprecated Function Not Used
+ */
 export const sendMessage = async (message: TSendMessageBody): Promise<TResponse | TSendMessageResponse> => {
     try {
         const { attribute, url, text, shared_by, shared_to } = message
@@ -85,6 +78,9 @@ export const sendMessage = async (message: TSendMessageBody): Promise<TResponse 
     }
 }
 
+/**
+ * @deprecated Function Not Used
+ */
 export const allMessages = async (uuids: TMessageUUIDs): Promise<TResponse | TAllMessagesResponse> => {
     try {
         const { shared_by, shared_to } = uuids;
