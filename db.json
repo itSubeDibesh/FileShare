@@ -1,0 +1,64 @@
+{
+    "users": [
+        {
+            "uuid": "f8fcc448-c60c-431f-8e4e-559866228611",
+            "name": "Dibesh",
+            "status": "Active",
+            "created_at": "2022-09-19T06:25:26.990429Z",
+            "updated_at": "2022-09-19T06:25:26.990456Z"
+        },
+        {
+            "uuid": "3b47e055-110a-4aca-adb4-1b57724b381a",
+            "name": "Dinesh",
+            "status": "Active",
+            "created_at": "2022-09-19T06:25:32.052370Z",
+            "updated_at": "2022-09-19T06:25:32.052403Z"
+        }
+    ],
+    "receive": [
+        {
+            "id": 9,
+            "attribute": "text",
+            "url": "",
+            "text": "Hello",
+            "status": "Created",
+            "created_at": "2022-09-19T07:55:39.127428Z",
+            "updated_at": "2022-09-19T07:55:39.127447Z",
+            "shared_by": "f8fcc448-c60c-431f-8e4e-559866228611",
+            "shared_to": "3b47e055-110a-4aca-adb4-1b57724b381a"
+        },
+        {
+            "id": 10,
+            "attribute": "text",
+            "url": "",
+            "text": "Hi There",
+            "status": "Created",
+            "created_at": "2022-09-19T07:55:39.127428Z",
+            "updated_at": "2022-09-19T07:55:39.127447Z",
+            "shared_by": "3b47e055-110a-4aca-adb4-1b57724b381a",
+            "shared_to": "f8fcc448-c60c-431f-8e4e-559866228611"
+        },
+        {
+            "id": 11,
+            "attribute": "text",
+            "url": "",
+            "text": "How Are you?",
+            "status": "Created",
+            "created_at": "2022-09-19T07:55:39.127428Z",
+            "updated_at": "2022-09-19T07:55:39.127447Z",
+            "shared_by": "f8fcc448-c60c-431f-8e4e-559866228611",
+            "shared_to": "3b47e055-110a-4aca-adb4-1b57724b381a"
+        },
+        {
+            "id": 12,
+            "attribute": "text",
+            "url": "",
+            "text": "All good",
+            "status": "Created",
+            "created_at": "2022-09-19T07:55:39.127428Z",
+            "updated_at": "2022-09-19T07:55:39.127447Z",
+            "shared_by": "3b47e055-110a-4aca-adb4-1b57724b381a",
+            "shared_to": "f8fcc448-c60c-431f-8e4e-559866228611"
+        }
+    ]
+}
