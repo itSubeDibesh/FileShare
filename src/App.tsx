@@ -1,39 +1,76 @@
+import Centrifuge from "centrifuge";
 import { FormEvent, useEffect, useState } from "react";
-import { createUser, TAllMessagesResponse, TUser } from "./services";
-import { MessageList, QRCard, QRCodeText, SetUpForm } from "./ui";
+import { createUser, getMessages, setupCentrifuge, TMessageResponse, TUser } from "./services";
+import { MessageList, QRCard, SetUpForm } from "./ui";
+import { Logger } from "./utils";
 
 const App = () => {
-  const [userDetails, setUserDetails] = useState<TUser>({
-    uuid: localStorage.getItem("DEVICE_UUID"),
-    name: localStorage.getItem("USER_NAME")
-  })
-  const [name, setUserName] = useState("")
-  const [QRText, setQRText] = useState<QRCodeText>(undefined)
+  const
+    log = new Logger("App").log,
+    [inputName, setInputName] = useState(""),
+    [centrifuge, setCentrifuge] = useState<Centrifuge>(),
+    [userDetails, setUserDetails] = useState<TUser>({
+      uuid: localStorage.getItem("DEVICE_UUID"),
+      name: localStorage.getItem("USER_NAME")
+    })
 
-  const [messageResponse, setMessageResponse] = useState<TAllMessagesResponse>();
+  const [messageResponse, setMessageResponse] = useState<TMessageResponse[]>();
 
-  // Form handler
-  const handelSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (name.length !== 0) {
-      const response = await createUser({ name })
-      if (response.success) {
-        if (!userDetails.uuid && !userDetails.name) {
-          const { uuid, name } = response.data;
-          setUserDetails({ uuid, name })
-          localStorage.setItem("DEVICE_UUID", uuid)
-          localStorage.setItem("USER_NAME", name)
-          setQRText(uuid)
+  // Handlers
+  const
+    handelSubmit = async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
+      if (inputName.length !== 0) {
+        const response = await createUser({ name: inputName })
+        if (response.success) {
+          if (!userDetails.uuid && !userDetails.name) {
+            const { uuid, name } = response.data;
+            setUserDetails({ uuid, name })
+            localStorage.setItem("DEVICE_UUID", uuid)
+            localStorage.setItem("USER_NAME", name)
+          }
+        }
+        else alert(response.data)
+      }
+    },
+    setUpApp = async () => {
+      if (userDetails.uuid) {
+        const response = await getMessages(userDetails.uuid);
+        log("setUpApp, response:", response)
+        if (response.success) {
+          setMessageResponse(response.data)
         }
       }
-      else alert(response.data)
+    },
+    setupSocket = async () => {
+      const socket = await setupCentrifuge();
+      socket.on('connect', (ctx) => log(`Centrifuge Connecting, Context:`, ctx))
+      socket.on('disconnect', (ctx) => log(`Centrifuge Disconnected, Context:`, ctx))
+      setCentrifuge(socket);
     }
+
+  const handleSocketAction = (context: any) => {
+    log("handleSocketAction:", context)
   }
 
+  // ON Load
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setUpApp(); setupSocket(); }, [])
+
+  // Subscribing to Socked Events
   useEffect(() => {
-    if (userDetails.uuid) setQRText(userDetails.uuid)
-    else setQRText(undefined)
-  }, [userDetails.uuid])
+    let centrifugeSub: Centrifuge.Subscription | undefined;
+    if (userDetails.uuid)
+      centrifugeSub = centrifuge?.subscribe(
+        `${userDetails.uuid}`, (ctx) => {
+          log('Centrifuge subscription, Context', ctx)
+          handleSocketAction(ctx)
+        })
+    return () => {
+      log('Centrifuge removed subscription')
+      centrifugeSub?.unsubscribe()
+    }
+  }, [centrifuge, userDetails.uuid, log, handleSocketAction])
 
   return (
     <div className="relative">
@@ -45,7 +82,7 @@ const App = () => {
         }
         {userDetails.uuid ?
           <MessageList allMessages={messageResponse} shared_by={userDetails.uuid} />
-          : <SetUpForm userName={name} setUserName={setUserName} handelSubmit={handelSubmit} />
+          : <SetUpForm userName={inputName} setUserName={setInputName} handelSubmit={handelSubmit} />
         }
       </div>
     </div>
