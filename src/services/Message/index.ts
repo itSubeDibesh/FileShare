@@ -1,33 +1,10 @@
 import axios from "axios"
+import {
+    TAllMessagesResponse, TMessageUUIDs, TReceiveMessageResponse,
+    TSendMessageBody, TSendMessageResponse
+} from "../@types"
+
 const BASE_URL = process.env.REACT_APP_BASE_URL;
-
-export type TMessageResponse = {
-    id: number,
-    attribute: string,
-    url?: string,
-    text: string,
-    status: string,
-    created_at: string,
-    updated_at: string,
-    shared_by: string,
-    shared_to: string
-}
-
-export type TSendMessageBody = {
-    attribute: string,
-    url?: string,
-    text?: string,
-    shared_by: string,
-    shared_to: string
-}
-
-export type TMessageUUIDs = {
-    shared_by: string,
-    shared_to: string
-}
-
-export type TSendMessageResponse = TMessageResponse
-export type TReceiveMessageResponse = TMessageResponse;
 
 export const getMessages = async (uuid: string): Promise<TReceiveMessageResponse[]> => {
     return (await axios
@@ -48,7 +25,7 @@ export const sendMessage = async (message: TSendMessageBody): Promise<TSendMessa
         )).data;
 }
 
-export const allMessages = async (uuids: TMessageUUIDs): Promise<TMessageResponse[]> => {
+export const allMessages = async (uuids: TMessageUUIDs): Promise<TAllMessagesResponse> => {
     const { shared_by, shared_to } = uuids;
     return (await axios.post(
         `${BASE_URL}/message/`,

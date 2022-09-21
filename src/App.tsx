@@ -1,79 +1,52 @@
 import { FormEvent, useEffect, useState } from "react";
-import { allMessages, sendMessage, TMessageResponse } from "./services";
-import { QRCard } from "./ui";
-import { Store } from "./utils";
-import { Icon } from "@iconify/react"
+import { createUser, TAllMessagesResponse, TUser } from "./services";
+import { MessageList, QRCard, QRCodeText, SetUpForm } from "./ui";
 
 const App = () => {
-  const shared_by = Store.get("DEVICE_UUID") || "";
-  const shared_to = "b36de4e9-edf9-455c-9182-5264d40b44a2"
-  const [message, setMessage] = useState<TMessageResponse[]>([]);
-  const [currentMessage, setCurrentMessage] = useState("");
+  const [userDetails, setUserDetails] = useState<TUser>({
+    uuid: localStorage.getItem("DEVICE_UUID"),
+    name: localStorage.getItem("USER_NAME")
+  })
+  const [name, setUserName] = useState("")
+  const [QRText, setQRText] = useState<QRCodeText>(undefined)
 
-  const setupFn = async () => {
-    setMessage(await allMessages({ shared_by, shared_to }));
-  }
+  const [messageResponse, setMessageResponse] = useState<TAllMessagesResponse>();
 
+  // Form handler
   const handelSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (currentMessage.length !== 0) {
-      await sendMessage({
-        shared_by, shared_to,
-        attribute: "text",
-        url: "",
-        text: currentMessage
-      })
-      setupFn()
-      setCurrentMessage("")
+    if (name.length !== 0) {
+      const response = await createUser({ name })
+      if (response.success) {
+        if (!userDetails.uuid && !userDetails.name) {
+          const { uuid, name } = response.data;
+          setUserDetails({ uuid, name })
+          localStorage.setItem("DEVICE_UUID", uuid)
+          localStorage.setItem("USER_NAME", name)
+          setQRText(uuid)
+        }
+      }
+      else alert(response.data)
     }
   }
 
   useEffect(() => {
-    setupFn()
-    setInterval(setupFn, 5e3)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (userDetails.uuid) setQRText(userDetails.uuid)
+    else setQRText(undefined)
+  }, [userDetails.uuid])
 
   return (
     <div className="relative">
       <div className="grid gap-4">
-        <div className="mt-10">
-          <QRCard />
-        </div>
-        <div className="mt-20" >
-          <div className="mr-10 ml-10" >
-            <ul className="list-none mb-40">
-              {message.map((item) => {
-                return item.shared_by === shared_by ?
-                  <li className="text-right flex justify-end" key={item.id}>
-                    {item.text}
-                    <Icon icon="carbon:user-avatar-filled" className="ml-2 mr-2" color="lightblue" width={24} />
-                  </li> : <li className="text-left flex justify-start" key={item.id}>
-                    <Icon icon="carbon:user-avatar-filled" className="ml-2 mr-2" color="brown" width={24} />
-                    {item.text}
-                  </li>
-              })}
-            </ul>
+        {userDetails.uuid &&
+          <div className="mt-10">
+            <QRCard Details={userDetails} />
           </div>
-        </div>
-        <div className="absolute w-full z-10">
-          <div className="fixed inset-x-0 bottom-0 mr-5 ml-5 mb-2">
-            <form onSubmit={handelSubmit}>
-              <label htmlFor="chat" className="sr-only">Your message</label>
-              <div className="flex items-center py-2 px-3 bg-gray-50 rounded-lg border-2">
-                <button type="button" className="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100">
-                  <svg aria-hidden="true" className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"></path></svg>
-                  <span className="sr-only">Upload image</span>
-                </button>
-                <textarea value={currentMessage} onChange={(e) => setCurrentMessage(e.target.value)} className="h-[50px] block resize-none mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Your message..."></textarea>
-                <button type="submit" className="inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100">
-                  <svg aria-hidden="true" className="w-6 h-6 rotate-90" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
-                  <span className="sr-only">Send message</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        }
+        {userDetails.uuid ?
+          <MessageList allMessages={messageResponse} shared_by={userDetails.uuid} />
+          : <SetUpForm userName={name} setUserName={setUserName} handelSubmit={handelSubmit} />
+        }
       </div>
     </div>
   );
